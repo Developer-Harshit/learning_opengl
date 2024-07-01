@@ -37,7 +37,6 @@ int main(void){
         return -1;
     }
 
-
     glViewport(0,0,700,500);
     glClearColor(0.3,0.9,0.6,1.0);
 
@@ -55,9 +54,14 @@ int main(void){
     "   FragColor = vec4(0.9,1.0,0.5,1.0);\n"
     "}";
     float vertices[] = {
-       -0.5f , -0.5f , 0.0f ,
+       -0.5f ,  0.5f , 0.0f ,
+        0.5f ,  0.5f , 0.0f ,
         0.5f , -0.5f , 0.0f ,
-        0.0f ,  0.5f , 0.0f ,
+       -0.5f , -0.5f , 0.0f ,
+    };
+    unsigned int indices[] = {
+        0,1,2,
+        3,2,0
     };
 
     int sucess;
@@ -100,16 +104,21 @@ int main(void){
     glDeleteShader(fragment_shader);
 
     // vertex
-    unsigned int vao,vbo;
+    unsigned int vao,vbo,ebo;
     glGenVertexArrays(1,&vao);
     glGenBuffers(1,&vbo);
+    glGenBuffers(1,&ebo);
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
 
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
+
+    // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
     while(!glfwWindowShouldClose(wnd)){
         // do input stuff
@@ -119,8 +128,9 @@ int main(void){
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program);
         glBindVertexArray(vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
 
-        glDrawArrays(GL_TRIANGLES,0,3);
+        glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 
         // glfw update stuff
         glfwSwapBuffers(wnd);
