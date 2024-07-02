@@ -11,14 +11,18 @@ glfw_lib = $(glfw)/lib
 glad = Z:/Blender/CPP/external/glad
 glad_inc = $(glad)/include
 
-INCLUDES = -I$(glfw_inc) -I$(glad_inc)
+workspace = Z:/Blender/CPP/opengl/
+
+INCLUDES = -I$(glfw_inc) -I$(glad_inc) -I$(workspace)/include
 LIBRARIES = -L$(glfw_lib)
 
 FILES = src/*.c
 
 _debug: 
+	@clear
 	gcc $(FILES) -D _DEBUG $(LINK_FLAGS) $(INCLUDES) $(LIBRARIES)  -o bin/Debug.exe
 _release:
+	@clear
 	gcc $(FILES) $(COMPILE_FLAGS)  $(LINK_FLAGS) $(INCLUDES) $(LIBRARIES) -o bin/Release.exe
 
 clean: 
@@ -26,9 +30,9 @@ clean:
 	rm ./bin/Debug.exe 
 
 debug : _debug
-	@clear
-	./bin/Debug.exe 
+	bin/Debug.exe
 
 run : _release
-	@clear
-	./bin/Release.exe 
+	bin/Release.exe
+	
+	
