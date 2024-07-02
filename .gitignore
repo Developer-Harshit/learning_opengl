@@ -3,7 +3,4 @@ bin
 obj
 
 # ide files
-project.depend
-project.cbp
-project.layout
-
+.vscode
