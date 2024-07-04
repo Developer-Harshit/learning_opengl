@@ -2,14 +2,14 @@
 #include <shader.h>
 #include <stdio.h>
 #include <glad/glad.h>
-shader_t create_program(char* vertex_path,char* fragment_path){
+Shader create_program(char* vertex_path,char* fragment_path){
 
-    shader_t vertex_shader = create_shader(vertex_path, GL_VERTEX_SHADER);
-    shader_t fragment_shader = create_shader(fragment_path, GL_FRAGMENT_SHADER);
+    Shader vertex_shader = create_shader(vertex_path, GL_VERTEX_SHADER);
+    Shader fragment_shader = create_shader(fragment_path, GL_FRAGMENT_SHADER);
     
     int sucess;
     char info_log[512];
-    shader_t shader_program = glCreateProgram();
+    Shader shader_program = glCreateProgram();
 
     glAttachShader(shader_program,vertex_shader);
     glAttachShader(shader_program,fragment_shader);
@@ -26,12 +26,12 @@ shader_t create_program(char* vertex_path,char* fragment_path){
     return  shader_program;
 }
 
-shader_t create_shader( char* shader_path,int shader_type){
+Shader create_shader( char* shader_path,int Shaderype){
     
     int sucess;
     char info_log[512];
     const char* shader_src = read_as_string(shader_path);
-    shader_t shader = glCreateShader((GLenum) shader_type);
+    Shader shader = glCreateShader((GLenum) Shaderype);
     
     glShaderSource(shader,1, &shader_src,NULL);
     glCompileShader(shader);
@@ -43,4 +43,13 @@ shader_t create_shader( char* shader_path,int shader_type){
     }
     
     return  shader;
+}
+void set_bool(Shader program, char* name,int value){
+    glUniform1i(glGetUniformLocation(program,name),value);
+}
+void set_int(Shader program, char* name,int value){
+    glUniform1i(glGetUniformLocation(program,name),value);
+}
+void set_float(Shader program, char* name,float value){
+    glUniform1f(glGetUniformLocation(program,name),value);
 }

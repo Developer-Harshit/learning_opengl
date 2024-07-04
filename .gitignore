@@ -4,3 +4,5 @@ obj
 
 # ide files
 .vscode
+
+Makefile

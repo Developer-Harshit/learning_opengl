@@ -1,19 +1,44 @@
 // always include glad before including GLFW
-#include "reader.h"
-#include <limits.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <shader.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <shader.h>
 
 void framebuffer_resized(GLFWwindow* wnd, int w, int h){
     glViewport(0,0,w,h);
 }
 
-void process_input(GLFWwindow* wnd){
+void process_input(GLFWwindow* wnd,double* last_time,double state[]){
+
     if (glfwGetKey(wnd,GLFW_KEY_ESCAPE) == GLFW_PRESS ) {
         glfwSetWindowShouldClose(wnd,1); 
+    }
+    double current_time = glfwGetTime();
+    double dt = current_time - (*last_time);
+    *last_time = current_time;
+
+    double speed = 1;
+
+    if (glfwGetKey(wnd,GLFW_KEY_A) == GLFW_PRESS){
+        state[0] -= speed * dt;
+    }
+    if (glfwGetKey(wnd,GLFW_KEY_D) == GLFW_PRESS){
+        state[0] +=speed * dt;
+    }
+    if (glfwGetKey(wnd,GLFW_KEY_W) == GLFW_PRESS){
+        state[1] +=speed * dt;
+    }
+    if (glfwGetKey(wnd,GLFW_KEY_S) == GLFW_PRESS){
+        state[1] -=speed * dt;
+    }
+    if (glfwGetKey(wnd,GLFW_KEY_LEFT) == GLFW_PRESS){
+        state[2] -=speed * dt;
+        if (state[2] <= 0.1){
+            state[2] = 0.1;
+        }
+    }
+    if (glfwGetKey(wnd,GLFW_KEY_RIGHT) == GLFW_PRESS){
+        state[2] +=speed * dt;
     }
 }
 
@@ -31,6 +56,7 @@ int main(void){
         return -1;
     }
     glfwMakeContextCurrent(wnd);
+    glfwSwapInterval(60);
     glfwSetFramebufferSizeCallback(wnd,framebuffer_resized);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -42,6 +68,7 @@ int main(void){
 
     glViewport(0,0,700,500);
     glClearColor(0.1,0.1,0.1,1.0);
+    
 
     float vertices[] = {
        -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -54,11 +81,11 @@ int main(void){
         3,2,0
     };
 
-
     //
+    double state[] = {0.0f,0.0f,1.0f};
     char* vertex_path = SHADER_PATH "base.vert";
     char* fragment_path = SHADER_PATH "base.frag";
-    shader_t shader_program = create_program(vertex_path,fragment_path);
+    Shader shader_program = create_program(vertex_path,fragment_path);
 
     // vertex
     unsigned int vao,vbo,ebo;
@@ -81,13 +108,17 @@ int main(void){
 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
+    double last_time = glfwGetTime();
     while(!glfwWindowShouldClose(wnd)){
         // do input stuff
-        process_input(wnd);
+        process_input(wnd,&last_time,state);
 
         // rendering stuff
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program);
+        set_float(shader_program, "uOffX", state[0]);
+        set_float(shader_program, "uOffY", state[1]);
+        set_float(shader_program, "uScale", state[2]);
         glBindVertexArray(vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
 
