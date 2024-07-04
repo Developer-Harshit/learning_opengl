@@ -2,8 +2,8 @@
 #include <shader.h>
 #include <stdio.h>
 #include <glad/glad.h>
+#include <string.h>
 Shader create_program(char* vertex_path,char* fragment_path){
-
     Shader vertex_shader = create_shader(vertex_path, GL_VERTEX_SHADER);
     Shader fragment_shader = create_shader(fragment_path, GL_FRAGMENT_SHADER);
     
@@ -30,8 +30,13 @@ Shader create_shader( char* shader_path,int Shaderype){
     
     int sucess;
     char info_log[512];
-    const char* shader_src = read_as_string(shader_path);
     Shader shader = glCreateShader((GLenum) Shaderype);
+
+    const char* shader_src = read_as_string(shader_path);
+    if (shader_src == NULL){
+        printf("FAILED TO LOAD FILE < %s >\n",shader_path);
+        return shader;
+    }
     
     glShaderSource(shader,1, &shader_src,NULL);
     glCompileShader(shader);

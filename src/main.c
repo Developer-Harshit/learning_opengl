@@ -1,4 +1,5 @@
 // always include glad before including GLFW
+#include "texture.h"
 #include <stdio.h>
 #include <shader.h>
 #include <glad/glad.h>
@@ -17,7 +18,7 @@ void process_input(GLFWwindow* wnd,double* last_time,double state[]){
     double dt = current_time - (*last_time);
     *last_time = current_time;
 
-    double speed = 1;
+    double speed = 2;
 
     if (glfwGetKey(wnd,GLFW_KEY_A) == GLFW_PRESS){
         state[0] -= speed * dt;
@@ -71,11 +72,12 @@ int main(void){
     
 
     float vertices[] = {
-       -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,
-        0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-       -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-    };
+            
+        0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+        0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+      -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+      -0.5f,  0.5f, 0.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f 
+};
     unsigned int indices[] = {
         0,1,2,
         3,2,0
@@ -86,6 +88,9 @@ int main(void){
     char* vertex_path = SHADER_PATH "base.vert";
     char* fragment_path = SHADER_PATH "base.frag";
     Shader shader_program = create_program(vertex_path,fragment_path);
+
+    char* texture_path = TEXTURE_PATH "cat.png";
+    Texture texture = create_texture(texture_path);
 
     // vertex
     unsigned int vao,vbo,ebo;
@@ -100,11 +105,15 @@ int main(void){
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
     // position
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,6 * sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
     // color
-    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6 * sizeof(float),(void*) (3 * sizeof(float)));
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8 * sizeof(float),(void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8 * sizeof(float),(void*) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
@@ -120,8 +129,8 @@ int main(void){
         set_float(shader_program, "uOffY", state[1]);
         set_float(shader_program, "uScale", state[2]);
         glBindVertexArray(vao);
+        glBindTexture(GL_TEXTURE_2D,texture);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
-
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 
         // glfw update stuff

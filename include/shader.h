@@ -1,6 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
-#define SHADER_PATH "resources/"
+#define SHADER_PATH "resources/shaders/"
 typedef unsigned int Shader;
 Shader create_program(char*, char*);
 Shader create_shader(char*, int);
