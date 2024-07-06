@@ -6,3 +6,5 @@ obj
 .vscode
 
 Makefile
+
+deps

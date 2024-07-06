@@ -9,39 +9,14 @@ void framebuffer_resized(GLFWwindow* wnd, int w, int h){
     glViewport(0,0,w,h);
 }
 
-void process_input(GLFWwindow* wnd,double* last_time,double state[]){
+void process_input(GLFWwindow* wnd){
 
     if (glfwGetKey(wnd,GLFW_KEY_ESCAPE) == GLFW_PRESS ) {
         glfwSetWindowShouldClose(wnd,1); 
     }
-    double current_time = glfwGetTime();
-    double dt = current_time - (*last_time);
-    *last_time = current_time;
 
-    double speed = 2;
-
-    if (glfwGetKey(wnd,GLFW_KEY_A) == GLFW_PRESS){
-        state[0] -= speed * dt;
-    }
-    if (glfwGetKey(wnd,GLFW_KEY_D) == GLFW_PRESS){
-        state[0] +=speed * dt;
-    }
-    if (glfwGetKey(wnd,GLFW_KEY_W) == GLFW_PRESS){
-        state[1] +=speed * dt;
-    }
-    if (glfwGetKey(wnd,GLFW_KEY_S) == GLFW_PRESS){
-        state[1] -=speed * dt;
-    }
-    if (glfwGetKey(wnd,GLFW_KEY_LEFT) == GLFW_PRESS){
-        state[2] -=speed * dt;
-        if (state[2] <= 0.1){
-            state[2] = 0.1;
-        }
-    }
-    if (glfwGetKey(wnd,GLFW_KEY_RIGHT) == GLFW_PRESS){
-        state[2] +=speed * dt;
-    }
 }
+
 
 int main(void){
     glfwInit();
@@ -84,13 +59,19 @@ int main(void){
     };
 
     //
+    
     double state[] = {0.0f,0.0f,1.0f};
     char* vertex_path = SHADER_PATH "base.vert";
     char* fragment_path = SHADER_PATH "base.frag";
     Shader shader_program = create_program(vertex_path,fragment_path);
 
-    char* texture_path = TEXTURE_PATH "cat.png";
-    Texture texture = create_texture(texture_path);
+    
+    Texture texture0 = create_texture(TEXTURE_PATH "cat.png",0);
+    Texture texture1 = create_texture(TEXTURE_PATH "brick.png",1);
+
+    glUseProgram(shader_program);
+    set_int(shader_program,"uTexture0",0);
+    set_int(shader_program,"uTexture1",1);
 
     // vertex
     unsigned int vao,vbo,ebo;
@@ -117,25 +98,24 @@ int main(void){
 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-    double last_time = glfwGetTime();
-    while(!glfwWindowShouldClose(wnd)){
+    
+    
+    while(!glfwWindowShouldClose(wnd)){        
         // do input stuff
-        process_input(wnd,&last_time,state);
+        glfwPollEvents();
+        process_input(wnd);
 
         // rendering stuff
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program);
-        set_float(shader_program, "uOffX", state[0]);
-        set_float(shader_program, "uOffY", state[1]);
-        set_float(shader_program, "uScale", state[2]);
         glBindVertexArray(vao);
-        glBindTexture(GL_TEXTURE_2D,texture);
+        use_texture(texture0,0);
+        use_texture(texture1,1);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
-
-        // glfw update stuff
+        
         glfwSwapBuffers(wnd);
-        glfwPollEvents();
+        
     }
     glDeleteProgram(shader_program);
     glDeleteBuffers(1,&vbo);

@@ -5,5 +5,6 @@ typedef unsigned int Texture;
 typedef  unsigned char Pixel_Data;
 Pixel_Data* load_image(char*);
 void clean_image(Pixel_Data*);
-Texture create_texture(char* image_path);
+void use_texture(Texture, int);
+Texture create_texture(char* ,int);
 #endif 
